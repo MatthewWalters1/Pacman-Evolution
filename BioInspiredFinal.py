@@ -130,7 +130,7 @@ def drawScene(pacman, ghosts):
 
 if __name__ == "__main__":
 
-    numTimeSteps = 1000
+    numTimeSteps = 50
     popSize = 10
 
     population = []
@@ -159,26 +159,25 @@ if __name__ == "__main__":
         # (I think it's best for the ghosts' evolution to always run every step even after pacman dies, but only set the deathStep the first time)
         deathStep = numTimeSteps
         for movement in pacmanMove:
-            #drawScene(pacman, ghosts)
+            drawScene(pacman, ghosts)
             move(movement, pacman)
             pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
             for g in ghosts:
                 if pacman.xPos == g.xPos and pacman.yPos == g.yPos and alive == 0:
                     deathStep = timeStep
                     alive = 1
-            #print("Move: " + str(movement))
-            #time.sleep(0.2)
+            print("Move: " + str(movement))
+            time.sleep(0.2)
             timeStep += 1
-        #drawScene(pacman, ghosts)
+        drawScene(pacman, ghosts)
     
         ### (Note from Matthew) The coverage score will look high, but we want to minimize this, 
             ### hence numSpaces - coverage (subtracting number of unique spaces from total possible spaces)
             ### again, because I think it would work better to minimize scores, not maximize.
         pacSet = set(pacPath)
         coverage = len(pacSet)
-        coverage = numSpaces - coverage
 
-        pacman.fitness += coverage
+        pacman.fitness += numSpaces - coverage
         pacman.fitness += numTimeSteps - deathStep
         # Either print or save to file final stats
         print("Steps Taken: " + str(len(pacmanMove)))
