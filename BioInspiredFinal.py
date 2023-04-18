@@ -134,53 +134,52 @@ if __name__ == "__main__":
     popSize = 10
 
     population = []
-    for i in range(popSize):
-        pacman = Pacman()
-        pacman.xPos = 6
-        pacman.yPos = 13
-        population.append(pacman)
+    # for i in range(popSize):
+    pacman = Pacman()
+    pacman.xPos = 6
+    pacman.yPos = 13
+    #     population.append(pacman)
 
     # Generate the movement list for pacman
-    populationMove = []
-    for pacman in population:
-        pacmanMove = []
-        ghosts = []
+    # populationMove = []
+    # for pacman in population:
+    pacmanMove = []
+    ghosts = []
 
-        for i in range(numTimeSteps):
-            integer = random.randint(0,3)
-            pacmanMove.append(integer)
-
-        # Print out the screen how ever many steps we are taking this time
-        pacPath = []
-        timeStep = 0
-        alive = 0
-        # since part of the fitness is how many steps were left when pacman dies, set deathStep to numTimeSteps while he's alive,
-        # and if he dies, set the deathStep to that step 
-        # (I think it's best for the ghosts' evolution to always run every step even after pacman dies, but only set the deathStep the first time)
-        deathStep = numTimeSteps
-        for movement in pacmanMove:
-            drawScene(pacman, ghosts)
-            move(movement, pacman)
-            pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
-            for g in ghosts:
-                if pacman.xPos == g.xPos and pacman.yPos == g.yPos and alive == 0:
-                    deathStep = timeStep
-                    alive = 1
-            print("Move: " + str(movement))
-            time.sleep(0.2)
-            timeStep += 1
+    for i in range(numTimeSteps):
+        integer = random.randint(0,3)
+        pacmanMove.append(integer)
+    # Print out the screen how ever many steps we are taking this time
+    pacPath = []
+    timeStep = 0
+    alive = 0
+    # since part of the fitness is how many steps were left when pacman dies, set deathStep to numTimeSteps while he's alive,
+    # and if he dies, set the deathStep to that step 
+    # (I think it's best for the ghosts' evolution to always run every step even after pacman dies, but only set the deathStep the first time)
+    deathStep = numTimeSteps
+    for movement in pacmanMove:
         drawScene(pacman, ghosts)
-    
-        ### (Note from Matthew) The coverage score will look high, but we want to minimize this, 
-            ### hence numSpaces - coverage (subtracting number of unique spaces from total possible spaces)
-            ### again, because I think it would work better to minimize scores, not maximize.
-        pacSet = set(pacPath)
-        coverage = len(pacSet)
+        move(movement, pacman)
+        pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
+        for g in ghosts:
+            if pacman.xPos == g.xPos and pacman.yPos == g.yPos and alive == 0:
+                deathStep = timeStep
+                alive = 1
+        print("Move: " + str(movement))
+        time.sleep(0.2)
+        timeStep += 1
+    drawScene(pacman, ghosts)
 
-        pacman.fitness += numSpaces - coverage
-        pacman.fitness += numTimeSteps - deathStep
-        # Either print or save to file final stats
-        print("Steps Taken: " + str(len(pacmanMove)))
-        print("Pacman Final Location: X -> " + str(pacman.xPos) + " Y -> " + str(pacman.yPos))
-        print("Pacman Coverage Score: " + str(coverage))
-        print("Pacman Fitness Score: " + str(pacman.fitness))
+    ### (Note from Matthew) The coverage score will look high, but we want to minimize this, 
+        ### hence numSpaces - coverage (subtracting number of unique spaces from total possible spaces)
+        ### again, because I think it would work better to minimize scores, not maximize.
+    pacSet = set(pacPath)
+    coverage = len(pacSet)
+
+    pacman.fitness += numSpaces - coverage
+    pacman.fitness += numTimeSteps - deathStep
+    # Either print or save to file final stats
+    print("Steps Taken: " + str(len(pacmanMove)))
+    print("Pacman Final Location: X -> " + str(pacman.xPos) + " Y -> " + str(pacman.yPos))
+    print("Pacman Coverage Score: " + str(coverage))
+    print("Pacman Fitness Score: " + str(pacman.fitness))
