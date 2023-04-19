@@ -26,12 +26,12 @@ originalMaze = [
     ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
 ]
 
-# You could hard code this (there are 244 possible spaces for pacman to touch), 
+# You could hard code this (there are 242 possible spaces for pacman to touch), 
 #  however, if you wanted to later change the board, this is more general
 numSpaces = 0
 for i in originalMaze:
     for j in i:
-        if j != 'X':
+        if (j != 'X' and j != '|'):
             numSpaces += 1
 
 mazeCopy = originalMaze.copy()
@@ -60,14 +60,18 @@ mazeCopy = originalMaze.copy()
 class Ghost:
     xPos = 0
     yPos = 0
+    team = 'G'
     
     # A movespeed of 1 enables that ghost to move one position every step
     moveSpeed = 1
+    fitness = 0
+    path = []
     
 # Class to manage the position and movement of pacman
 class Pacman:
     xPos = 0
     yPos = 0
+    team = 'P'
     
     moveSpeed = 1
     fitness = 0
@@ -78,12 +82,12 @@ def move(movement, character):
 
     # Reset the maze to erase where the character was
     mazeCopy[character.yPos][character.xPos] = '0'
-    
+
     # Character is moving up
     if movement == 0:
         # You can't move into a wall or a ghost or pacman we will check that collision later
         symbol = mazeCopy[character.yPos - character.moveSpeed][character.xPos]
-        if symbol != 'X' and symbol != 'G' and symbol != 'P':
+        if symbol != 'X' and symbol != 'G':
             character.yPos -= 1
     
     # Character is moving left
@@ -92,14 +96,14 @@ def move(movement, character):
         symbol = mazeCopy[character.yPos][character.xPos - character.moveSpeed]
         if symbol == '|':
             character.xPos += 25
-        elif symbol != 'X' and symbol != 'G' and symbol != 'P':
+        elif symbol != 'X' and symbol != 'G':
             character.xPos -= 1
     
     # Character is moving down
     elif movement == 2:
         # You can't move into a wall or a ghost or pacman we will check that collision later
         symbol = mazeCopy[character.yPos + character.moveSpeed][character.xPos]
-        if symbol != 'X' and symbol != 'G' and symbol != 'P':
+        if symbol != 'X' and symbol != 'G':
             character.yPos += 1
     
     #Character is moving right
@@ -108,7 +112,7 @@ def move(movement, character):
         symbol = mazeCopy[character.yPos][character.xPos + character.moveSpeed]
         if symbol == '|':
             character.xPos -= 25
-        elif symbol != 'X' and symbol != 'G' and symbol != 'P':
+        elif symbol != 'X' and symbol != 'G':
             character.xPos += 1
     
     # Error in characrer movement
@@ -123,6 +127,8 @@ def drawScene(pacman, ghosts):
     mazeCopy[pacman.yPos][pacman.xPos] = 'P'
 
     # Set the positions of the ghosts as a G
+    for g in ghosts:
+        mazeCopy[g.yPos][g.xPos] = 'G'
 
     # Draw the maze
     for i in range(len(mazeCopy)):
@@ -175,30 +181,34 @@ def mutation(probMutate, parent):
                 child[i] = 1
     return child
 
-def evolvePac(population, verbose, bestFit, currEpoch, bestEpoch):
+def evolvePac(population, verbose, bestFit, currEpoch, bestEpoch, ghosts, numTimeSteps, numSpaces):
     fitnesses = []
     for pacman in population:
         pacmanMove = pacman.path
-        ghosts = []
-
+        for g in ghosts:
+            g.xPos = 13
+            g.yPos = 9
         # Print out the screen how ever many steps we are taking this time
         pacPath = []
         timeStep = 0
         alive = 0
         # since part of the fitness is how many steps were left when pacman dies, set deathStep to numTimeSteps while he's alive,
         # and if he dies, set the deathStep to that step 
-        # (I think it's best for the ghosts' evolution to always run every step even after pacman dies, but only set the deathStep the first time)
         deathStep = numTimeSteps
-        for movement in pacmanMove:
+        for movement in range(len(pacmanMove)):
             #drawScene(pacman, ghosts)
-            move(movement, pacman)
+            move(pacmanMove[movement], pacman)
             pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
             for g in ghosts:
-                if pacman.xPos == g.xPos and pacman.yPos == g.yPos and alive == 0:
+                move(g.path[movement], g)
+                if (pacman.xPos == g.xPos and pacman.yPos == g.yPos):
                     deathStep = timeStep
                     alive = 1
-            #print("Move: " + str(movement))
-            #time.sleep(0.2)
+                    break
+            if (alive == 1):
+                break
+            #print("Move: " + str(pacmanMove[movement]))
+            #time.sleep(0.5)
             timeStep += 1
         #drawScene(pacman, ghosts)
 
@@ -208,8 +218,8 @@ def evolvePac(population, verbose, bestFit, currEpoch, bestEpoch):
         pacSet = set(pacPath)
         coverage = len(pacSet)
         pacman.fitness = 0
-        pacman.fitness += numSpaces - coverage
-        pacman.fitness += numTimeSteps - deathStep
+        pacman.fitness += (numSpaces - coverage)
+        pacman.fitness += (numTimeSteps - deathStep)
         fitnesses.append(pacman.fitness)
         # Either print or save to file final stats
         # print("Steps Taken: " + str(len(pacmanMove)))
@@ -217,9 +227,9 @@ def evolvePac(population, verbose, bestFit, currEpoch, bestEpoch):
         # print("Pacman Coverage Score: " + str(coverage))
         # print("Pacman Fitness Score: " + str(pacman.fitness))
     if (verbose):
-        print("Best Coverage (Epoch " + str(bestEpoch) + "): " + str(bestFit))
-        print("Best Coverage this Epoch: " + str(min(fitnesses)))
-        print("Worst Coverage this Epoch: " + str(max(fitnesses)))
+        print("Best Fitness Ever (Epoch " + str(bestEpoch) + "): " + str(bestFit))
+        print("Best Fitness this Epoch: " + str(min(fitnesses)))
+        print("Worst Fitness this Epoch (index " + str(fitnesses.index(max(fitnesses))) + "): " + str(max(fitnesses)))
     if min(fitnesses) < bestFit:
         bestFit = min(fitnesses)
         bestEpoch = currEpoch
@@ -247,29 +257,45 @@ def newPop(population):
 
 if __name__ == "__main__":
 
-    numTimeSteps = 1000
-    popSize = 10
+    numTimeSteps = 500
+    popSize = 100
     probCrossover = 0.1
     probMutate = 0.1
-    numEpochs = 5000
+    numEpochs = 100
 
+    # First Pacman Population
     population = []
     for i in range(popSize):
         pacman = Pacman()
         pacman.xPos = 6
         pacman.yPos = 13
+        pacman.team = 'P'
         pacman.path = []
         for j in range(numTimeSteps):
             integer = random.randint(0,3)
             pacman.path.append(integer)
         population.append(pacman)
 
-    bestFit = 244
+    # Original Ghosts' Paths
+    ghosts = []
+    for i in range(4):
+        g = Ghost()
+        g.xPos = 13
+        g.yPos = 9
+        g.team = 'G'
+        g.path = []
+        for j in range(numTimeSteps):
+            integer = random.randint(0,3)
+            g.path.append(integer)
+        ghosts.append(g)
+
+    bestFit = numTimeSteps + numSpaces
     bestEpoch = -1
-    fitnesses, bestFit, bestEpoch = evolvePac(population, 1, bestFit, -1, bestEpoch)
+    fitnesses, bestFit, bestEpoch = evolvePac(population, 1, bestFit, -1, bestEpoch, ghosts, numTimeSteps, numSpaces)
     for i in range(numEpochs):
         population = newPop(population)
         if i == numEpochs - 1:
-            fitnesses, bestFit, bestEpoch = evolvePac(population, 1, bestFit, i, bestEpoch)
+            fitnesses, bestFit, bestEpoch = evolvePac(population, 1, bestFit, i, bestEpoch, ghosts, numTimeSteps, numSpaces)
         else:
-            fitnesses, bestFit, bestEpoch = evolvePac(population, 0, bestFit, i, bestEpoch)
+            fitnesses, bestFit, bestEpoch = evolvePac(population, 0, bestFit, i, bestEpoch, ghosts, numTimeSteps, numSpaces)
+    
