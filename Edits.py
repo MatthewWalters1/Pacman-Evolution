@@ -359,49 +359,26 @@ if __name__ == "__main__":
     probMutate = 0.01
     numGens = 50
 
-    # First Pacman Population
-    population = []
-    for i in range(popSize):
-        pacman = Pacman()
-        pacman.xPos = 6
-        pacman.yPos = 13
-        pacman.team = 'P'
-        pacman.path = []
-        for j in range(numTimeSteps):
-            integer = random.randint(0,3)
-            pacman.path.append(integer)
-        population.append(pacman)
+    filename = "nts" + str(numTimeSteps) + "ps" + str(popSize) + "pc" + str(probCrossover) + "pm" + str(probMutate) + "ng" + str(numGens) + ".csv"
 
-    # Original Ghosts' Paths
-    ghosts = []
-    for i in range(4):
-        g = Ghost()
-        g.xPos = 13
-        g.yPos = 9
-        g.team = 'G'
-        g.path = []
-        g.distPac = 1000
-        for j in range(numTimeSteps):
-            integer = random.randint(0,3)
-            g.path.append(integer)
-        ghosts.append(g)
+    outfile = open(filename, "w")
+    outfile.write("Stage,Generation,Best_Fitness,Avg_Fitness,test\n")
 
-    bestFit = numTimeSteps + numSpaces
-    bestGen = -1
-    print("Evolving Pacman")
-    for i in range(numGens):
-        if i == numGens - 1 or i == 0:
-            fitnesses, bestFit, bestGen = evolvePac(population, 1, bestFit, i, bestGen, ghosts, numTimeSteps, numSpaces)
-        else:
-            fitnesses, bestFit, bestGen = evolvePac(population, 0, bestFit, i, bestGen, ghosts, numTimeSteps, numSpaces)
-        population = newPop(population, fitnesses)
-    
-    currentBestPacman = population[fitnesses.index(min(fitnesses))]
-    
-    print("Evolving Ghosts")
-    ghostPop = []
-    ghostPop.append(ghosts)
-    for i in range(popSize - 1):
+    for test in range(50):
+        # First Pacman Population
+        population = []
+        for i in range(popSize):
+            pacman = Pacman()
+            pacman.xPos = 6
+            pacman.yPos = 13
+            pacman.team = 'P'
+            pacman.path = []
+            for j in range(numTimeSteps):
+                integer = random.randint(0,3)
+                pacman.path.append(integer)
+            population.append(pacman)
+
+        # Original Ghosts' Paths
         ghosts = []
         for i in range(4):
             g = Ghost()
@@ -409,45 +386,80 @@ if __name__ == "__main__":
             g.yPos = 9
             g.team = 'G'
             g.path = []
-            g.minDist = abs(13 - 6) + abs(9 - 13)
+            g.distPac = 1000
             for j in range(numTimeSteps):
                 integer = random.randint(0,3)
                 g.path.append(integer)
             ghosts.append(g)
+
+        bestFit = numTimeSteps + numSpaces
+        bestGen = -1
+        print("Evolving Pacman")
+        for i in range(numGens):
+            if i == numGens - 1 or i == 0:
+                fitnesses, bestFit, bestGen = evolvePac(population, 1, bestFit, i, bestGen, ghosts, numTimeSteps, numSpaces)
+            else:
+                fitnesses, bestFit, bestGen = evolvePac(population, 0, bestFit, i, bestGen, ghosts, numTimeSteps, numSpaces)
+            outfile.write("1, " + str(i) + ", " + str(min(fitnesses)) + ", " + str(np.mean(fitnesses)) + ", " + str(test) + "\n")
+            population = newPop(population, fitnesses)
+
+        currentBestPacman = population[fitnesses.index(min(fitnesses))]
+        
+        print("Evolving Ghosts")
+        ghostPop = []
         ghostPop.append(ghosts)
-    
-    bestFit = 4*(abs(13 - 6) + abs(9 - 13)) + numTimeSteps
-    bestGen = -1
-    for i in range(numGens):
-        if i == numGens - 1 or i == 0:
-            fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 1, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
-        else:
-            fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 0, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
-        ghostPop = newGhostPop(ghostPop, fitnesses)
-    
-    currentBestGhosts = ghostPop[fitnesses.index(min(fitnesses))]
+        for i in range(popSize - 1):
+            ghosts = []
+            for i in range(4):
+                g = Ghost()
+                g.xPos = 13
+                g.yPos = 9
+                g.team = 'G'
+                g.path = []
+                g.minDist = abs(13 - 6) + abs(9 - 13)
+                for j in range(numTimeSteps):
+                    integer = random.randint(0,3)
+                    g.path.append(integer)
+                ghosts.append(g)
+            ghostPop.append(ghosts)
+        
+        bestFit = 4*(abs(13 - 6) + abs(9 - 13)) + numTimeSteps
+        bestGen = -1
+        for i in range(numGens):
+            if i == numGens - 1 or i == 0:
+                fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 1, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
+            else:
+                fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 0, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
+            outfile.write("2, " + str(i) + ", " + str(min(fitnesses)) + ", " + str(np.mean(fitnesses)) + ", " + str(test) + "\n")
+            ghostPop = newGhostPop(ghostPop, fitnesses)
+        
+        currentBestGhosts = ghostPop[fitnesses.index(min(fitnesses))]
 
-    # for epoch in numEpochs: all of the below code
-    print("Evolving Pacman Again")
-    bestFit = numTimeSteps + numSpaces
-    bestGen = -1
-    for i in range(numGens):
-        if i == numGens - 1 or i == 0:
-            fitnesses, bestFit, bestGen = evolvePac(population, 1, bestFit, i, bestGen, currentBestGhosts, numTimeSteps, numSpaces)
-        else:
-            fitnesses, bestFit, bestGen = evolvePac(population, 0, bestFit, i, bestGen, currentBestGhosts, numTimeSteps, numSpaces)
-        population = newPop(population, fitnesses)
-    
-    currentBestPacman = population[fitnesses.index(min(fitnesses))]
+        # for epoch in numEpochs: all of the below code
+        print("Evolving Pacman Again")
+        bestFit = numTimeSteps + numSpaces
+        bestGen = -1
+        for i in range(numGens):
+            if i == numGens - 1 or i == 0:
+                fitnesses, bestFit, bestGen = evolvePac(population, 1, bestFit, i, bestGen, currentBestGhosts, numTimeSteps, numSpaces)
+            else:
+                fitnesses, bestFit, bestGen = evolvePac(population, 0, bestFit, i, bestGen, currentBestGhosts, numTimeSteps, numSpaces)
+            outfile.write("3, " + str(i) + ", " + str(min(fitnesses)) + ", " + str(np.mean(fitnesses)) + ", " + str(test) + "\n")
+            population = newPop(population, fitnesses)
+        
+        currentBestPacman = population[fitnesses.index(min(fitnesses))]
 
-    print("Evolving Ghosts Again")
-    bestFit = 4*(abs(13 - 6) + abs(9 - 13)) + numTimeSteps
-    bestGen = -1
-    for i in range(numGens):
-        if i == numGens - 1 or i == 0:
-            fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 1, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
-        else:
-            fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 0, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
-        ghostPop = newGhostPop(ghostPop, fitnesses)
-    
-    currentBestGhosts = ghostPop[fitnesses.index(min(fitnesses))]
+        print("Evolving Ghosts Again")
+        bestFit = 4*(abs(13 - 6) + abs(9 - 13)) + numTimeSteps
+        bestGen = -1
+        for i in range(numGens):
+            if i == numGens - 1 or i == 0:
+                fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 1, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
+            else:
+                fitnesses, bestFit, bestGen = evolveGhosts(ghostPop, 0, bestFit, i, bestGen, currentBestPacman, numTimeSteps, numSpaces)
+            outfile.write("4, " + str(i) + ", " + str(min(fitnesses)) + ", " + str(np.mean(fitnesses)) + ", " + str(test) + "\n")
+            ghostPop = newGhostPop(ghostPop, fitnesses)
+        
+        currentBestGhosts = ghostPop[fitnesses.index(min(fitnesses))]
+
+    outfile.close()
