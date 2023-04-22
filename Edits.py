@@ -44,17 +44,12 @@ mazeCopy = originalMaze.copy()
 
 # For pacman fitness function:
 # - Get better score for staying as far away from ghosts as possible
-### - I don't think he should be penalized for getting near ghosts if he can actually avoid them, but this would mirror the fitness score of the ghosts
 # - Really bad score if he gets caught by a ghost
-### - I think this should hurt pacman's score by the number of timesteps remaining when he gets hit by a ghost
 # - Get better score for maximum coverage of the area aka not revisiting spots
-### - I implemented this to be numSpaces subtracted by the number of unique spaces touched
 
 # For ghost fitness function:
 # - Higher score for either catching pacman or being the closest one to pacman
-### - Yes, this should be the inverse of pacman's fitness (best score is 0, add the number of time steps before they catch him)
 # - Goal is to minimize the number of steps it takes for them to catch pacman
-### - also add to the score the minimum distance they achieved from pacman (the best path is the one closest to him)
 
 # Class to manage the position and the movement of the ghost
 class Ghost:
