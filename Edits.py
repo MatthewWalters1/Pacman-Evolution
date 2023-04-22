@@ -349,6 +349,10 @@ def newGhostPop(population, fitnesses):
 
 if __name__ == "__main__":
 
+    # From here, we need to write these stats from every member of every population to a csv, 
+    # so we can graph it, and then play around more with hyperparameters (heatmap style). At that point, I think we're kind of done, 
+    # other than making it go back and forth between pacman and the ghosts like, 50 times instead of 2 each
+
     numTimeSteps = 500
     popSize = 200
     probCrossover = 0.1
@@ -423,6 +427,7 @@ if __name__ == "__main__":
     
     currentBestGhosts = ghostPop[fitnesses.index(min(fitnesses))]
 
+    # for epoch in numEpochs: all of the below code
     print("Evolving Pacman Again")
     bestFit = numTimeSteps + numSpaces
     bestGen = -1
