@@ -348,22 +348,17 @@ def newGhostPop(population, fitnesses):
     return population
 
 if __name__ == "__main__":
-
-    # From here, we need to write these stats from every member of every population to a csv, 
-    # so we can graph it, and then play around more with hyperparameters (heatmap style). At that point, I think we're kind of done, 
-    # other than making it go back and forth between pacman and the ghosts like, 50 times instead of 2 each
-
+    
     numTimeSteps = 500
     # popSize = 200
     # probCrossover = 0.1
     # probMutate = 0.01
     # numGens = 50
 
-    popSizes = [50, 100, 200, 500, 1000]
-    cProbs = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
-    mProbs = [0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
-    numGenerations = [2, 10, 15, 25, 50, 75, 100]
-
+    popSizes = [50, 100, 200, 500]
+    cProbs = [0.001, 0.01, 0.05, 0.1]
+    mProbs = [0.001, 0.01, 0.05, 0.1]
+    numGenerations = [2, 10, 25, 50, 100]
 
     filename = "data.csv"
     outfile = open(filename, "w")
@@ -372,7 +367,7 @@ if __name__ == "__main__":
         for probCrossover in cProbs:
             for probMutate in mProbs:
                 for numGens in numGenerations:
-                    for test in range(10):
+                    for test in range(20):
                         print("popSize:" + str(popSize))
                         print("probCrossover:" + str(probCrossover))
                         print("probMutate:" + str(probMutate))
