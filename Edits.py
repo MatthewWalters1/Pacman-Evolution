@@ -193,8 +193,8 @@ def evolvePac(population, ghosts, numTimeSteps, numSpaces, showGame):
         # and if he dies, set the deathStep to that step 
         deathStep = numTimeSteps
         for movement in range(len(pacmanMove)):
-            if (showGame):
-                drawScene(pacman, ghosts)
+            # if (showGame):
+            #     drawScene(pacman, ghosts)
             move(pacmanMove[movement], pacman)
             pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
             for g in ghosts:
@@ -206,11 +206,11 @@ def evolvePac(population, ghosts, numTimeSteps, numSpaces, showGame):
             if (alive == 1):
                 break
             #print("Move: " + str(pacmanMove[movement]))
-            if (showGame):
-                time.sleep(0.5)
+            # if (showGame):
+            #     time.sleep(0.5)
             timeStep += 1
-        if (showGame):
-            drawScene(pacman, ghosts)
+        # if (showGame):
+        #     drawScene(pacman, ghosts)
 
         pacSet = set(pacPath)
         coverage = len(pacSet)
@@ -238,8 +238,8 @@ def evolveGhosts(population, pacman, numTimeSteps, numSpaces, showGame):
         # and if he dies, set the deathStep to that step
         deathStep = numTimeSteps
         for movement in range(len(pacmanMove)):
-            if (showGame):
-                drawScene(pacman, ghosts)
+            # if (showGame):
+            #     drawScene(pacman, ghosts)
             move(pacmanMove[movement], pacman)
             for g in ghosts:
                 move(g.path[movement], g)
@@ -250,11 +250,11 @@ def evolveGhosts(population, pacman, numTimeSteps, numSpaces, showGame):
                     deathStep = timeStep
                     alive = 1
             #print("Move: " + str(pacmanMove[movement]))
-            if (showGame):
-                time.sleep(0.5)
+            # if (showGame):
+            #     time.sleep(0.5)
             timeStep += 1
-        if (showGame):
-            drawScene(pacman, ghosts)
+        # if (showGame):
+        #     drawScene(pacman, ghosts)
 
         minDist = 0
         for g in ghosts:
@@ -321,12 +321,12 @@ if __name__ == "__main__":
     probCrossover = 0.01
     probMutate = 0.01
     numGens = 50
-    numEpochs = 100
+    numEpochs = 50
 
     filename = "hundredEpochs.csv"
     outfile = open(filename, "w")
     outfile.write("Team,Generation,Best_Fitness,Avg_Fitness,Epoch,Test\n")
-    for test in range(20):
+    for test in range(5):
         print(test)
         # First Pacman Population
         population = []
@@ -391,6 +391,8 @@ if __name__ == "__main__":
 
         # for epoch in numEpochs: all of the below code
         for epoch in range(1, numEpochs):
+            print("test:", test)
+            print("epoch:", epoch)
             # print("Evolving Pacman Again")
             for i in range(numGens):
                 fitnesses = evolvePac(population, currentBestGhosts, numTimeSteps, numSpaces, 0)
