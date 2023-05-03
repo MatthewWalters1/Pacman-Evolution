@@ -82,7 +82,7 @@ def move(movement, character):
     if movement == 0:
         # You can't move into a wall or a ghost or pacman we will check that collision later
         symbol = mazeCopy[character.yPos - character.moveSpeed][character.xPos]
-        if symbol != 'X' and symbol != 'G':
+        if symbol != 'X' and (symbol != 'G' and character.team == 'P'):
             character.yPos -= 1
     
     # Character is moving left
@@ -338,6 +338,7 @@ def newPop(population, fitnesses):
         pacman = Pacman()
         pacman.xPos = 6
         pacman.yPos = 13
+        pacman.team = 'P'
         pacman.path = i
         population.append(pacman)
     return population
@@ -364,6 +365,7 @@ def newGhostPop(population, fitnesses):
             g = Ghost()
             g.xPos = 13
             g.yPos = 9
+            g.team = 'G'
             g.path = j
             populationset.append(g)
         population.append(populationset)
