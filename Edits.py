@@ -36,21 +36,6 @@ for i in originalMaze:
 
 mazeCopy = originalMaze.copy()
 
-
-### (Note from Matthew) I think it makes more sense to favor the lowest scores than to have an arbitrarily high fitness score
-    ### By this I mean, make the tournament selection (or whatever mechanic we have for evolution) select the next generation
-    ### via the lowest score. With a minimal score (0), it's easier to recognize how good the score is, 
-    ### since the maximum scores given our criteria will be some weird number like 829 or 1273
-
-# For pacman fitness function:
-# - Get better score for staying as far away from ghosts as possible
-# - Really bad score if he gets caught by a ghost
-# - Get better score for maximum coverage of the area aka not revisiting spots
-
-# For ghost fitness function:
-# - Higher score for either catching pacman or being the closest one to pacman
-# - Goal is to minimize the number of steps it takes for them to catch pacman
-
 # Class to manage the position and the movement of the ghost
 class Ghost:
     xPos = 0
@@ -193,8 +178,8 @@ def evolvePac(population, ghosts, numTimeSteps, numSpaces, showGame):
         # and if he dies, set the deathStep to that step 
         deathStep = numTimeSteps
         for movement in range(len(pacmanMove)):
-            # if (showGame):
-            #     drawScene(pacman, ghosts)
+            if (showGame):
+                drawScene(pacman, ghosts)
             move(pacmanMove[movement], pacman)
             pacPath.append(str(pacman.xPos) + '-' + str(pacman.yPos))
             for g in ghosts:
@@ -205,12 +190,12 @@ def evolvePac(population, ghosts, numTimeSteps, numSpaces, showGame):
                     break
             if (alive == 1):
                 break
-            #print("Move: " + str(pacmanMove[movement]))
-            # if (showGame):
-            #     time.sleep(0.5)
+            print("Move: " + str(pacmanMove[movement]))
+            if (showGame):
+                time.sleep(0.5)
             timeStep += 1
-        # if (showGame):
-        #     drawScene(pacman, ghosts)
+        if (showGame):
+            drawScene(pacman, ghosts)
 
         pacSet = set(pacPath)
         coverage = len(pacSet)
@@ -238,8 +223,8 @@ def evolveGhosts(population, pacman, numTimeSteps, numSpaces, showGame):
         # and if he dies, set the deathStep to that step
         deathStep = numTimeSteps
         for movement in range(len(pacmanMove)):
-            # if (showGame):
-            #     drawScene(pacman, ghosts)
+            if (showGame):
+                drawScene(pacman, ghosts)
             move(pacmanMove[movement], pacman)
             for g in ghosts:
                 move(g.path[movement], g)
@@ -249,12 +234,12 @@ def evolveGhosts(population, pacman, numTimeSteps, numSpaces, showGame):
                 if (pacman.xPos == g.xPos and pacman.yPos == g.yPos):
                     deathStep = timeStep
                     alive = 1
-            #print("Move: " + str(pacmanMove[movement]))
-            # if (showGame):
-            #     time.sleep(0.5)
+            print("Move: " + str(pacmanMove[movement]))
+            if (showGame):
+                time.sleep(0.5)
             timeStep += 1
-        # if (showGame):
-        #     drawScene(pacman, ghosts)
+        if (showGame):
+            drawScene(pacman, ghosts)
 
         minDist = 0
         for g in ghosts:
@@ -321,12 +306,13 @@ if __name__ == "__main__":
     probCrossover = 0.01
     probMutate = 0.01
     numGens = 50
-    numEpochs = 50
+    numEpochs = 1
+    numTests = 5
 
-    filename = "hundredEpochs.csv"
+    filename = "newData.csv"
     outfile = open(filename, "w")
     outfile.write("Team,Generation,Best_Fitness,Avg_Fitness,Epoch,Test\n")
-    for test in range(5):
+    for test in range(numTests):
         print(test)
         # First Pacman Population
         population = []
@@ -357,7 +343,7 @@ if __name__ == "__main__":
 
         # print("Evolving Pacman")
         for i in range(numGens):
-            # if you want to see the gameplay, change the zero here to a one, you probably would only want a popSize of 1
+            # if you want to see the gameplay, change the zero here to a 1, you probably would only want a popSize of 1
             fitnesses = evolvePac(population, ghosts, numTimeSteps, numSpaces, 0)
             outfile.write("0, " + str(i) + ", " + str(min(fitnesses)) + ", " + str(np.mean(fitnesses)) + ", " + str(0) + ", " + str(test) + "\n")
             population = newPop(population, fitnesses)
